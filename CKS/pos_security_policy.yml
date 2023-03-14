@@ -1,0 +1,21 @@
+apiVersion: policy/v1beta1
+kind: PoldSecurityPolicy
+metadata:
+    name: my-psp
+spec:
+    privileged: false
+    runAsUser:
+        rule: RunAsAny
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    name: cr-use-psp
+rules:
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  verbs: ['use']
+  resourceNames:
+  - my-psp
+
+---
