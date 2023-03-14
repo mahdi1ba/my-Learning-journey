@@ -1,0 +1,14 @@
+# vi kubeapi-server.yaml
+# --enable-admission-plugins=NodeRestriction,NamesspaceProvision,ResourceQuota
+#quota limit for all containers in the name space . combine the request or limits of all the containers then compair the value with the quota if the value exceeds the quota then some containers will not be created 
+apiVersion: v1
+kind: ResourceQuota
+metadata: 
+  name: resources-test-quota
+  namespace: resources-test
+spec:
+  hard:
+    requests.memory: 128Mi
+    requests.cpu: 500m
+    limits.memory: 256Mi
+    limits.cpu: "1"

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blue-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+    app: bleugreen-test
+    color: blue
+  tepmlate:
+    metadata:
+      labels:
+        app: bluegreen-test
+        color: blue
+    spec:
+      containers:
+      - name: nginx
+        image: linuxacademycontent/ckad-nginx:blue
+        ports:
+        - containerPort: 80 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bluegreen-test-svc
+spec:
+  selector:
+    app: bluegreen-test
+    color: green
+  ports:
+  - portocol: TCP 
+    port: 80
+    targetPort: 80
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: green-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+    app: bleugreen-test
+    color: green
+  tepmlate:
+    metadata:
+      labels:
+        app: bluegreen-test
+        color: green
+    spec:
+      containers:
+      - name: nginx
+        image: linuxacademycontent/ckad-nginx:green
+        ports:
+        - containerPort: 80 
+
+

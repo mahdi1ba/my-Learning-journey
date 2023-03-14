@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+    creationTimestamp: null
+    labels:
+      run: multi-pod
+    name: multi-pod
+spec:
+    contaienrs:
+    - image: nginx
+      name: jypiter
+      env:
+      - name: type
+        value: planet
+    - image: busybox
+      name: europa
+      command: ["/bin/sh","-c","sleep 4800"]
+      env:
+        - name: type
+          value: moon 
