@@ -26,6 +26,3 @@ terraform {
           }
        }
     }
-
-
-#mIvAXTJDIRAK7Q.atlasv1.IAElgQEg1ffKJ7Gcbp3FRQB0qzf09RzB3T86QuwW3Q9pQI4RZlfv6sAGmh30Rz54PWY
