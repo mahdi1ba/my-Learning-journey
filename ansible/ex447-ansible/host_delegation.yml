@@ -1,0 +1,32 @@
+- name: Check the status of the remote server
+  url:
+    url: http://{{ inventory_hostname }}
+    method: GET
+    timeout: 30
+    status_code: 200
+    return_content: yes
+  delegate_to: localhost
+  Register: webresult
+
+# directive: delegate_to is a directive
+# this means that it can work with nearly every module rather than having to wrap a module in another module.
+#delegate_to syntax
+
+---
+  - name: Populate index.html
+    copy:
+      dest: "/var/www/html/index.html"
+
+  - name: Verify installation
+    uri:
+      url: http://{{ inventory_hostname }}
+      method: GET
+      timeout: 30
+      status_code: 200
+      return_content: yes
+    delegate_to: localhost
+    Register: webresult
+
+  - name: Output from verification
+    debug:
+      var: webresult

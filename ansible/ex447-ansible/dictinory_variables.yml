@@ -1,0 +1,89 @@
+# KEY /VALUE PAIRS 
+#often used to store things like user profile information or other related data
+- bob:
+    name: Bob DaBuilder
+    id: 2501
+    skills:
+      - Can Build It
+    
+- sally:
+    name: Sally Jenkins
+    id: 2502
+    skills:
+        - Jenkins Adminstrator
+        - Linux Guru
+      
+#{{ sally.skills[1] }}
+#{{ sally['skills[1]'] }}
+
+# Reusable variables in a file
+#storing variables in a file rather than directly in a playbook allows you to separate sensitive variables from playbooks. Additionally, you can reuse a lot of variables without duplicating them
+#External vars allow overrides
+#if you need to override a variable for any reason, using external variables is a good way to do it .
+
+---
+- hosts: all
+  become: yes
+  vars:
+    dns: 192.168.12.10
+  vars_files:
+    - /path/external_vars.yml
+
+
+# output of this playbook: this is a playbook variable
+---
+- hosts: all
+  become: yes
+  gather_facts: no
+  vars:
+    myvar: "This is a playbook variable."
+
+  tasks:
+    - name: just a debug message to output variables.
+      debug:
+        msg: "{{ myvar }}"
+
+
+# output of this playbook this is a file variable
+# more_ext_var : myvar: this is a file variable
+---
+- hosts: all
+  become: yes
+  gather_facts: no
+  vars:
+    myvar: "This is a playbook variable."
+  vars_files:
+    - more_ext_var.yml
+  tasks:
+    - name: just a debug message to output variables.
+      debug:
+        msg: "{{ myvar }}"
+
+# user_info
+
+#users:
+#  - name: sam
+#    id: 2501
+#    comment: Sam Samuelson
+  
+#  - name: melissa
+#    comment: melissa
+#    id: 2568
+
+
+---
+- hosts: all
+  become: yes
+  gather_facts: no
+
+  vars_files:
+    - ./user_info
+  
+  tasks:
+    - name: Create Users
+      user:
+        name: "{{item.name}}"
+        state: present
+        comment: "{{item.comment}}"
+        uid: "{{item.id}}"
+      with_items: "{{users}}"

@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install required software
+      yum:
+        state: present
+        name:
+          - httpd
+          - git

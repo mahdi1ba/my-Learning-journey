@@ -1,0 +1,22 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install packages
+      yum:
+        state: present
+        name: csh
+    - name: Create required directory
+      file:
+        path: "/opt/backup"
+        state: directory
+    - name: Populate required file
+      copy:
+        dest: /opt/backup/streams
+        content: |
+            {{ stremas }}
+
+#cat inventory:
+#[backup_servers]
+#backup1 ansible_user=cloud_user streams=192
+#backup2 ansible_user=cloud_user streams=384

@@ -1,0 +1,20 @@
+- name: configure SELinux to start mysql on any port
+  ansible.posix.seboolean:
+    name: mysql connect any
+    state: true
+    persistent: yes
+  when: ansible_selinux.status == "enabled"
+
+- tasks:
+# or
+  - name: Shut down Centos 6 and Debian 7 systems
+    ansible.builtin.command: /sbin/shutdown -t now
+    when: (ansible_facts['distribution'] == "Centos" and (ansible_facts['distribution_major_version'] == "6") or
+          (ansible_facts['distribution'] == "Debian" and (ansible_facts['distribution_major_version'] == "7")
+# and conditions
+  - name: Shut down Centos 6 systems
+    ansible.builtin.command: /sbin/shutdown -t now
+    when: 
+      - ansible_facts['distribution'] == "Centos"
+      - ansible_facts['distribution_major_version'] == "6"
+  

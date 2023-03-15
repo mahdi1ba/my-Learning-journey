@@ -1,0 +1,61 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Install Apache on Webservers
+      yum:
+        state: present
+        name: httpd
+      tags: webserver
+
+    - name: Install CSH on Backup servers (required per vendor)
+      yum:
+        state: present
+        name: csh
+      tags: backup
+
+    - name: Configure /var/www/html/index.html
+      copy:
+        dest: "/var/www/html/index.html"
+        content: |
+          This is your new website content.
+          Please replace this with the actual content from the developers before going
+          production.
+      tags: webserver
+      register: indexchange
+    
+    - name: Restart apache when index changes
+      service:
+        state: restarted
+        name: httpd
+        enabled: yes
+      when: indexchange.changed
+      tags: webserver
+
+    - name: Create backup software directory (Per vendor, directory must exist before software is installed)
+      file:
+        dest: "/opt/backup"
+        state: directory
+      tags: backup
+
+    - name: Configure backup streams (Per vendor, file must exist before software is installed)
+      copy:
+        dest: "/opt/backup/streams"
+        content: "192"
+      tags: backup
+
+    - name: Verify webserver is working correctly
+      uri:
+        url: http://{{ inventory_hostname }}
+        method: GET
+        timeout: 30
+        status_code: 200
+        return_content: yes
+      delegate_to: localhost
+      register: result
+    
+    - name: show the verification
+      debug:
+        var: result
+      tags: webserver

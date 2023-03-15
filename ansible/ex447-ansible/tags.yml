@@ -1,0 +1,27 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: no
+
+  tasks:
+  - name: Test with tags
+    yum:
+      state: present
+      name: csh
+    tags: csh
+
+  - name: Test with tags 
+    yum:
+      state: present
+      name: httpd
+    tags: httpd
+
+#cat inventory
+#rpm -q tcsh
+#package tcsh is not installed
+# ansible-playbook -i inventory software.yml --tags "csh"
+
+#to skip tag :
+#ansible-playbook -i inventory software.yml --kip-tags "csh"
+
+#ansible-playbook software.yml --list-tags
