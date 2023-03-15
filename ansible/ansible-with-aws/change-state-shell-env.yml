@@ -1,0 +1,27 @@
+# $ source ./keys.sh
+# $ env | grep AWS
+
+# keys.sh 
+#!/bin/sh
+
+#export AWS_ACCESS_KEY_ID='..........'
+#export AWS_SECRET_ACCESS_KEY='...........'
+#export AWS_REGION='......'
+
+#local_action is the only way currently that you can make environment variable authentication work with aws.
+
+# $ source ./keys.sh
+
+#change-state-shell-env
+- hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name: Change instances state by tag
+      local_action: ec2
+      args:
+        state: running
+        instance_tags:
+          Name: Demo
+
+
+

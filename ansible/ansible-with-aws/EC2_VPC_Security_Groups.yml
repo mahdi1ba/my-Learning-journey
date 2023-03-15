@@ -1,0 +1,31 @@
+#vpc security group: :: like firewall
+# we have inbound rules and outbound rules like every firewall does
+# we can use this module to create and maintain our security groups and those rule sets. So let's pull up an exemple
+
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+    - keys.yml
+  tasks:
+    - name: Create new Security group
+      ec2_group:
+        aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+        aws_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
+        ec2_region: "{{ AWS_REGION }}"
+        name: demoSG
+        description: An exemple EC2 security group
+        vpc_id: vpc-ed1bjzfel
+        rules:
+          - proto: tcp
+            ports:
+              - 80
+              - 443
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            to_port: 22
+            cidr_ip: 86.75.30.9/32
+        rules_engress:
+          - proto: tcp
+            from_port: 22
+            cidr_ip: 10.0.0.0/8
+        

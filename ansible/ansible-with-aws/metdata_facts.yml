@@ -1,0 +1,75 @@
+# metadata facts is able to get a little bit more grandular information
+#and the cool thing about metadata facts is that you get information specific to that host, and then you can use the ansible magic variables to get very 
+#specific facts back on a given EC2 instance. and oftentimes that can come in handy when you're performing certain kinds of configuration work . 
+
+#it doesn't even take authentification parameters because it's being run from the ec2 instance. So we're not actually connecting to the AWS condole.
+#we don't have to worry about connecting to that.
+
+# Metadata facts let us get the information about a specific EC2 instance that we connect to. 
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+    - keys.yml
+  tasks:
+    - name: Provision instance
+      ec2: 
+        aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+        aws_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
+        ec2_region: "{{ AWS_REGION }}"
+        instance_type: t2.micro
+        keypair: scoldham-aws-keypair
+        image: ami-0987987899008
+        assign_public_ip: yes
+        vpc_subnet_id: subnet-112092
+        group: demo5g
+        wait: true
+        exact_count: 1
+        count_tag:
+          Name: Demo
+        instance_tags:
+          Name: Demo
+      register: ec2
+    - debug:
+        var: ec2
+    - name: add host to inventory
+      add_host: 
+        hostname: '{{ item.public_ip }}'
+        groupname: demogroup
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+        ansible_ssh_private_key_file: /home/ansible/scoldham-aws-keypair.pem
+      loop: '{{ ec2.instances }}'
+    
+- hosts: demogroup
+  gather_facts: no
+  remote_user: ec2-user
+  tasks:
+    - name: wait for ssh
+      wait_for_connection:
+        delay: 5
+        timeout: 90
+    
+    - name: Collect instance facts
+      ec2_metadata_facts:
+      register: ec2_meta_facts
+
+- hosts: localhost
+  gather_facts: yes
+  vars_files:
+    - keys.yml
+  tasks:
+    - name: Check out gathered facts
+      debug:
+        var: hostvars[groups['demogroup'][0]]['ansible_ec2_instance_id']
+    
+    - name: change instances state by tag
+      ec2:
+        aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+        aws_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
+        ec2_region: "{{ AWS_REGION }}"
+        state: stopped
+        instance_tags:
+          Name: Demo
+      register: ec2
+    
+    - name: Check host status
+      ping:

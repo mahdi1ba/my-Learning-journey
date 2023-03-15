@@ -1,0 +1,22 @@
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+    - keys.yml
+  tasks:
+    - name: create new EBS Volume
+      ec2_vol:
+        aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+        aws_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
+        ec2_region: "{{ AWS_REGION }}"
+        zone:  us-east-id
+        volume_size: '1'
+        name: web_volume
+        #system name that will be given to the volume
+        device_name: /dev/xvdf
+      register: vol_info
+    - debug:
+        var: val_info
+    
+
+#An Amazon EBS volume is a durable, block-level storage device that you can attach to your instances. 
+#After you attach a volume to an instance, you can use it as you would use a physical hard drive. EBS volumes are flexible.
