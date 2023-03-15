@@ -1,0 +1,20 @@
+# already exists with the installation of minkube there : path : ~/.kube/config
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority: /home/cloud_user/.minikube/ca.crt
+    server: https://172.17.0.3:8443
+  name: minikube
+contexts:
+- context:
+    cluster: minikube
+    user: minikube
+  name: minikube
+current-context: minikube
+kind: Config
+preferences: {}
+users:
+- name: minikube
+  user:
+    client-certificate: /home/cloud_user/.minikube/profiles/minikube/client.crt
+    client-key: /home/cloud_user/.minikube/profiles/minikube/client.key

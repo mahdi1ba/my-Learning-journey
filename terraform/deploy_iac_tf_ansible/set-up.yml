@@ -1,0 +1,7 @@
+#set-up
+#sudo yum -y install python3-pip
+#pip3 install awscli --user
+#pip3 install ansible --user 
+#aws --version
+#aws configure
+
