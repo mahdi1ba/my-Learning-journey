@@ -1,0 +1,25 @@
+---
+- name: Print dns server
+  hosts: all
+  tasks:
+  - debug:
+      msg: '{{  hostvars['web2'].dns_server }}'
+
+# msg: '{{ hostvars['web2'].ansible_host }}
+# msg: '{{ hostvars['web2'].ansible_facts.architecture }}
+# msg: '{{ hostvars['web2'].ansible_facts.devices }}
+# msg: '{{ hostvars['web2'].ansible_facts.mounts }}
+# msg: '{{ hostvars['web2'].ansible_facts.processor }}
+# msg: '{{ hostvars['web2']['ansible_facts']['processor'] }}
+ 
+#group variable - groups
+
+#msg: '{{ groups['americas'] }}' ==> web1/web2
+#msg: '{{ group_names }}' ==> print all the available group
+
+# variable - inventory_hostname
+#msg: '{{ inventory_hostname }}'
+#ansible_version
+#This is my full inventory hostname {{inventory_hostname}} #Fill variable for full inventory hostname
+#This is my short inventory hostname {{inventory_hostname_short}} #Fill variable for short inventory hostname
+#This is my inventory file {{inventory_file}} #Fill variable for inventory file

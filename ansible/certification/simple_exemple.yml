@@ -1,0 +1,14 @@
+- hosts: web1
+  tasks:
+    - name: create /tmp/testfile.txt
+      file:
+        path: /tmp/testfile.txt
+        state: touch
+
+---
+- hosts: web1
+  tasks:
+    - name: Create user angel
+      user:
+        name: angel
+        

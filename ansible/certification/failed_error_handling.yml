@@ -1,0 +1,95 @@
+- name: Deploy web application
+  hosts: sserver1,server2,server3
+  any_errors_fatal: true
+  tasks:
+    - name: Install dependencies
+    - name: Install Mysql Database
+    - name: Start Mysql Service
+    - name: Install Python Flask Dependencies
+
+    - command: cat /var/log/server.log
+      register: command_output
+      failed_when: '"ERROR" in command_output.stdout'
+
+    - mail:
+        to: admin@company.com
+        subject: Server Configured
+        body: web server has been configured
+#using rescue:
+---
+- name: Deploy web application
+  hosts: sserver1,server2,server3
+  any_errors_fatal: true
+  tasks:
+  - name: Install web application
+    block:
+      - name: Install dependencies
+      - name: Install Mysql Database
+      - name: Start Mysql Service
+      - name: Install Python Flask dependencies
+      - name: Run web-server
+    rescue:
+    - mail:
+        to: admin@company.com
+        subject: Playbook Failed
+        body: web server configuration failed
+        
+---
+---
+- name: Install httpd
+  hosts: all
+  any_errors_fatal: true
+  gather_facts: no
+  tasks:
+    - name: Install httpd
+      yum:
+        name: httpd
+        state: present
+
+    - name: start service
+      service:
+        name: httpd
+        state: started
+
+---
+#ignore_errors: yes
+---
+- name: Install httpd
+  hosts: web1
+  gather_facts: no
+  tasks:
+    - name: Install httpd
+      yum:
+        name: httpd
+        state: present
+
+    - name: Do not remove this task
+      command: /bin/false
+      register: results
+      ignore_errors: yes
+
+    - shell: "echo {{ results.msg }} > /tmp/output"
+
+    - name: start service
+      service:
+        name: httpd
+        state: started
+#failed_when
+---
+- name: Install httpd
+  hosts: web1
+  gather_facts: no
+  tasks:
+    - name: Install httpd
+      yum:
+        name: httpd
+        state: present
+    - name: Check httpd error logs
+      command: cat /var/log/httpd/error_log
+      register: results
+
+    - name: start service
+      service:
+        name: httpd
+        state: started
+      failed_when: '"Error" in results.stdout'

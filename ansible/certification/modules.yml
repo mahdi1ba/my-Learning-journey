@@ -1,0 +1,357 @@
+---
+- name: Start httpd service
+  hosts: all
+  tasks:
+  - service:
+      name: httpd
+      state: started
+      enabled: yes
+---
+- service:
+        name: httpd
+        state: reloaded
+---
+- name: Restart Apache
+      service:
+        name: httpd
+        state: restarted
+---
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+    - name: Install nginx
+      yum:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+---
+- name: Add Firewall rule
+  hosts: all
+  tasks:
+  - Firewalld:
+        port: 8080/tcp
+        service: http
+        source: 192.0.0.0/24
+
+        zone: public
+
+        state: enabled
+
+        permanent: yes
+        immediate: yes
+---
+---
+- hosts: web1
+  tasks:
+    - name: Enable HTTPS for ansible controller
+      firewalld:
+        source: 172.20.1.2
+        service: https
+        zone: internal
+        state: enabled
+        permanent: yes
+
+    - service:
+        name: firewalld
+        state: reloaded
+---
+- hosts: web1
+  tasks:
+   - firewalld:
+      source: 172.20.1.101
+      state: enabled
+      zone: internal
+      permanent: yes
+      immediate: yes
+---
+- hosts: all
+  tasks:
+  - name: Create LVM Volume Group
+    lvg:
+      vg: vg1
+      pvs: /dev/sdb1,/dev/sdb2
+
+  - name: Create logical volume LVM Volume
+    lvol:
+      vg: vg1
+      lv: lvol1
+      size: 2g
+
+---
+- hosts: all
+  tasks:
+  - name: Create Filesystem
+    filesystem:
+      fstype: ext4
+      dev: /dev/vg1/lvol1
+      opts: -cc
+
+  - name: Mount Filesystem
+    mount:
+      fstype: ext4
+      src: /dev/vg1/lvol1
+      path: /opt/app
+      state: mounted
+
+---
+- hosts: all
+  tasks:
+  - name: Create Directory
+    file:
+      path: /opt/app/web
+      state: directory
+  - name: Create File
+    file:
+      path: /opt/app/web/index.html
+      state: touch
+      owner: app-owner
+      group: app-owner
+      mode: '0644'
+
+---
+- hosts: all
+  tasks:
+  - name: Compress a folder 
+    archive:
+      path: /opt/app/web
+      dest: /tmp/web.gz
+
+      format: zip|tar|bz2|xz|gz
+  - name: Uncompress a folder
+    unarchive:
+      src: /tmp/web.gz
+      dest: /opt/app/web
+# if the file to compress is in the remote machine.
+      remote_src: yes
+
+---
+- hosts: all
+  tasks:
+  - name: Create a scheduled task
+    cron:
+      name: Run daily health report
+      job: sh /opt/scripts/health.sh
+
+      month: 2
+      day: 19
+      hour: 8
+      minute: 10
+      weekday: 1 #monday
+    
+# run the job every two minutes */2
+
+---
+- hosts: all
+  tasks:
+  - name: Create a user Maria
+    user:
+      name: maria
+      uid: 1001
+      group: developers
+      shell: /bin/bash
+
+  - name: Create a group
+    group:
+      name: developers
+
+---
+- hosts: all
+  tasks:
+  - name: Configure ssh keys
+    authorized_keys:
+      user: maria
+      state: present
+      key: |
+      ssh-rsa AAAAAASJDNSDLMMZDMDMZDZEJDZE689gjc
+
+---
+- hosts: web1
+  tasks:
+  - name: Install httpd package
+    yum: name=httpd state=installed
+
+# allow downgrade
+---
+- hosts: web1
+  tasks:
+  - yum: name=sudo state=latest
+  - yum: name=vsftpd-2.2.2 state=present allow_downgrade=yes
+
+
+---
+- name: Create index.html on web1
+  hosts: web1
+  tasks:
+  - lineinfile:
+      path: /var/www/html/index.html
+      line: 'This line was added using Ansible lineinfile module!'
+      create: yes
+
+---
+- hosts: web1
+  tasks:
+    - name: Find files
+      find:
+        paths: /opt/data
+        recurse: yes
+        age: 2m
+        size: 1m
+        recurse: yes
+      register: file
+
+    - name: Copy files
+      command: "cp {{ item.path }} /opt"
+      with_items: "{{ file.files }}"
+
+
+---
+---
+- name: replace port 80 to 8080
+  hosts: web1
+  tasks:
+  - replace:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: 'Listen 80'
+      replace: 'Listen 8080'
+  - service: name=httpd state=restarted
+---
+- name: extract local.zip to web1
+  hosts: web1
+  tasks:
+  - unarchive:
+      src: local.zip
+      dest: /tmp
+
+---
+# when source is already in the remote web1
+
+---
+- name: extract data.tar.gz on web1
+  hosts: web1
+  tasks:
+  - unarchive:
+      src: /root/data.tar.gz
+      dest: /srv
+      remote_src: yes
+#make sure data.tar.gz archive is removed after that.
+  - file: path=/root/data.tar.gz state=absent
+
+---
+- name: Ansible delete file example
+  file:
+    path: /etc/delete.conf
+    state: absent
+
+---
+- name: Compress multiple files
+  hosts: web1
+  tasks:
+  - archive:
+     path:
+      - /root/file1.txt
+      - /usr/local/share/file2.txt
+      - /var/log/lastlog
+     dest: /root/files.tar.bz2
+     format: bz2
+---
+- name: Install and configure nginx on web1
+  hosts: web1
+  tasks:
+  - name: Install nginx
+    yum: name=nginx state=installed
+  - name: Start nginx
+    service: name=nginx state=started enabled=yes
+
+  - name: Extract nginx.zip
+    unarchive: src=/root/nginx.zip dest=/usr/share/nginx/html remote_src=yes
+
+  - name: Replace line in index.html
+    replace:
+     path: /usr/share/nginx/html/index.html
+     regexp: This is sample html code
+     replace: This is KodeKloud Ansible lab
+
+---
+---
+- name: Create a cron job to run free.sh script
+  hosts: node00
+  tasks:
+   - name: Create cron job
+     cron:
+       name: "Free Memory Check"
+       minute: "0"
+       hour: "*/2"
+       job: "sh /root/free.sh"
+---
+- name: remove cron job from node
+  hosts: node00
+  tasks:
+  - name: Remove cron job
+    cron:
+      name: "check Memory"
+      state: absent
+---
+look like as below.
+---
+- name: Cleanup /tmp after every reboot
+  hosts: node00
+  tasks:
+   - cron:
+      name: cleanup
+      job: rm -rf /tmp/*
+      special_time: reboot
+---
+---
+- name: Create cron for yum
+  hosts: node00
+  gather_facts: no
+  tasks:
+    - name: Creates a cron
+      cron:
+        name: yum update
+        weekday: 0
+        minute: 5
+        hour: 8
+        user: root
+        job: "yum -y update"
+        cron_file: ansible_yum
+---
+
+- hosts: all
+  gather_facts: no
+  tasks:
+    - group:
+        name: 'admin'
+        state: present
+    - user:
+        name: 'admin'
+        uid: 2048
+        group: 'admin'
+
+---
+#expire user
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+    - user:
+        name: 'neymarsabin'
+        expires: 1704067199
+
+#remove admin user 
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+    - user:
+        name: 'admin'
+        state: absent
+    - group:
+        name: 'admin'
+        state: absent

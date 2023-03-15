@@ -1,0 +1,75 @@
+
+# block and error handling 
+
+- hosts: server1
+  tasks:
+   - block:
+      - name: Install MySQL
+        yum: name=mysql-server state=present
+      - name: Start Mysql Service
+        service: name=mysql-server state=started
+     become_user: db-user
+     when: ansible_facts['distribution'] == 'Centos'
+     rescue:
+        - mail:
+            to: admin@company.com
+            subject: Installation Failed
+            body: DB Install Failed at {{ ansible_failed_task.name }}
+     always:
+        - mail:
+            to: admin@company.com
+            subject: Installation status
+            body: DB Install status - {{ ansible_failed_result }}
+   - block:
+      - name: Install Nginx
+        yum: name=nginx state=present
+      - name: Start Nginx service
+        service: name=nginx state=stated
+     become_user: web-user
+     when: ansible_facts['distribution'] == 'Centos'
+
+---
+- hosts: all
+  tasks:
+    - name: Install and configure httpd web server
+      when: ansible_facts['distribution'] == 'CentOS'
+      block:
+        - yum:
+            name: httpd
+            state: present
+        - service:
+            name: httpd
+            state: started
+---
+
+---
+- hosts: all
+  tasks:
+    - name: Install and configure httpd web server
+      when: ansible_facts['distribution'] == 'CentOS'
+      block:
+        - yum:
+            name: httpd
+            state: present
+        - service:
+            name: httpd
+            state: started
+      rescue:
+        - debug:
+            msg: "Playbook has failed for {{ inventory_hostname }} node"
+
+---
+- hosts: all
+  tasks:
+    - name: Create a file
+      block:
+        - file:
+            path: /tmp/file.txt
+            state: touch
+        - name: This will fail
+          command: /bin/false
+        - debug:
+            msg: "This will never run"
+      always:
+        - debug:
+            msg: "This task always runs!"

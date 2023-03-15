@@ -1,0 +1,13 @@
+{% for number in [0,1,2,3,4] %}
+{{ number }}
+{% endfor %}
+
+#condition
+
+{% for number in [0,1,2,3,4] %}
+   {% if number == 2 %}
+       {{ number }}
+   {% endif %}
+{% endfor %}
+
+{{hostvars['lamp-db']['ansible_facts']['eth0']['ipv4']['address'] }}, {{ hostvars['lamp-db']['dbuser'] }}, {{ hostvars['lamp-db']['dbpassword'] }}, {{ hostvars['lamp-db']['dbname'] }}

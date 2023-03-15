@@ -1,0 +1,49 @@
+#Ansible check if software package installed
+---
+- hosts: web2
+  gather_facts: false
+  tasks:
+    - shell: dpkg -l git
+      register: check_if_git_installed
+      ignore_errors: true
+
+    - debug: var=check_if_git_installed
+    - shell: echo 'Oops, git is missing' > /tmp/is_git_installed.txt
+      when: check_if_git_installed.rc != 0
+
+    - shell: git --version > /tmp/is_git_installed.txt
+      when: check_if_git_installed.rc == 0
+---
+tasks:
+    - name: Run the command if "epic" or "monumental" is true
+      ansible.builtin.shell: echo "This certainly is epic!"
+      when: epic or monumental | bool
+
+---
+---
+- name: copy script if not present
+  gather_facts: yes
+  hosts: web2
+  vars:
+    remote_dest: /usr/local/bin/report_status.sh
+  tasks:
+    - copy:
+        src: report_status.sh
+        dest: "{{remote_dest}}"
+      when: copy_file_only_if is defined and copy_file_only_if|bool
+      ###......................................problem is here ^
+      ### modify this so copy_file_only_if is evaluated as boolean.
+
+---
+---
+- hosts: web2
+  gather_facts: no
+  tasks:
+    - name: install nginx
+      apt: name=nginx state=present
+      tags: [install_core]
+
+    - name: install extra packages
+      apt: name={{item}}
+      with_items: "{{extra_packages}}"
+      when: extra_packages is defined and extra_packages == "htop"

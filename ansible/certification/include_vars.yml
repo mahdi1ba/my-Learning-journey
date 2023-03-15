@@ -1,0 +1,42 @@
+- name: Deploy Web & DB Server
+  hosts: web-db-Server
+  tasks:
+    - include_vars:
+        file: /opt/apps/common-data/email/info.yml
+        name: email_data
+    - mail:
+        to: {{ email_data.admin_email }}
+        subject: Service Alert
+        body: Httpd Service is down
+
+#/opt/apps/common-data/email/info.yml
+#admin_email: admin@company.com
+
+#include tasks:
+
+#playbook.yml
+
+- name: Deploy web 1 DB Server
+  hosts: web-db-Server
+  tasks:
+    - include_tasks: tasks/db.yml
+    - include_tasks: tasks/web.yml
+
+#tasks/db.yml
+- name: Install mysql packages
+- name: Start mysql service
+- name: Configure database
+
+#tasks/web.yml
+- name: Install python flask dependencies
+- name: Run web-server
+
+# include vars
+---
+- name: Print DB server data
+  hosts: all
+  gather_facts: no
+  tasks:
+    - include_vars: /home/thor/playbooks/general/common/db/db.yml
+    - debug:
+        var: db_version

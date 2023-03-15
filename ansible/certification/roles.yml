@@ -1,0 +1,25 @@
+#Pass in an additional parameter to the role to NOT configure the service to be enabled at startup. Use the parameter nginx_service_enabled
+---
+- name: Deploy Web Server
+  hosts: web_server
+  roles:
+    - name: geerlingguy.nginx
+      vars:
+        nginx_service_enabled: no
+
+---
+#Move the tasks into tasks/main.yml and update deploy_firewalld.yml as per below given code
+---
+- name: Install common dependencies
+  yum:
+    name:
+      - firewalld
+    state: installed
+- name: Start firewalld
+  service: name=firewalld state=started enabled=yes
+#Playbook should look like
+
+- name: Configure Firewalld
+  hosts: all
+  roles:
+    - ansible-role-firewalld
