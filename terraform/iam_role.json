@@ -1,0 +1,13 @@
+{
+    "Version": "2012-10-17",
+    "statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DeleteTags",
+                "ec2:CreateTags"
+            ],
+            "Resource" : "*"
+        }
+    ]
+}
