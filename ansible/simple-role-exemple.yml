@@ -1,0 +1,15 @@
+# ansible-galaxy roles search ..........
+#install role in roles folder command: $ansible-galaxy install geerlingguy.git -p roles/ 
+# ansible-galaxy role list
+#modify ansible.cfg:: content
+#[defaults]
+#inventory =./inventory
+#remote_user = devops
+#roles_path = roles
+# define role there 
+---
+- name: Install____ Git
+  hosts: node1
+  become: yes
+  roles:
+    - role: geerlingguy.git

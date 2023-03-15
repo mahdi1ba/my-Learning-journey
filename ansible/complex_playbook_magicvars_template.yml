@@ -1,0 +1,30 @@
+- hosts: remote
+  become: yes
+  vars:
+    nfs_ip: "{{ hostvars['nfs']['ansible_default_ipv4']['address'] }}"
+    nfs_hostname: "{{ hostvars['nfs']['ansible_hostname'] }}"
+  vars_files:
+    - /home/ansible/user-list.txt
+  tasks:
+    - name: configure hostsfile
+      template:
+        src: /home/ansible/etc.host.j2
+        dest: /etc/hosts
+    - name: get file status
+      stat:
+        path: /opt/user-agreement.txt
+      register: filestat
+    - name: create users
+      user:
+        name: "{{ item }}"
+      when: filestat.stat.exists
+      loop: "{{ users }}"
+
+# the content of /home/ansible/user-list.txt
+#  users:
+#    - frank
+#    - judy
+#    - joe
+#    - sarah
+#    - sam
+#    - carry

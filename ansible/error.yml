@@ -1,0 +1,35 @@
+--- #Error handling exemple #1
+- hosts: localhost
+  become: yes
+  tasks:
+    - name: Install software
+      yum:
+        name: broke
+        state: latest
+      ignore_errors: yes
+    - name: Run utility
+      command: /home/ansible/do-stuff.sh what
+      register: cmd_output
+      changed_when: "'CHANGED' in cmd output.stdout"
+      failed_when: "'FAIL' in cmd output.stdout" 
+
+---
+- hosts: localhost
+  become: yes
+  vars:
+    target_service: httpd
+  tasks:
+    - name: Install software
+      block:
+        - service:
+            name: "{{ target service }}"
+            state: started
+          register: service_status
+      rescue:
+        - debug:
+            var: service_status
+      always:
+        - debug:
+            msg: "Tired to ensure service was running "
+
+      

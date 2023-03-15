@@ -1,0 +1,19 @@
+- name: Provision AWS Resources
+  hosts: localhost
+  tasks:
+  - name: provision EC2 instance using Ansible
+    ec2:
+      key_name: appserver
+      instance_tags:
+        Name: appserver
+      instance_type: t2.micro
+      image: ami-0der43568U
+      region: ca-central-1
+      wait: yes
+      count: 2
+      count_tag:
+        Name: appserver
+  - name: Delete Instances
+      ec2:
+        state: 'absent'
+        instance ids: '{{ ec2.instance ids }}'

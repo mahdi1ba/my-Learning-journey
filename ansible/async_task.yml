@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Run sleep.sh
+      command: /home/ansible/sleep.sh
+      # if the script runtime take more than 60 sec .. job will be killed (ansible is going to kill it and say it failed)
+      async: 60
+      poll: 10
+# the poll value controls how often ansible checks back on our job.in this case, ansible is going to check back every 10 seconds.
+#and if the job completes then ansible is going to come back and tell us so .or if it fails in the process of running it will let us know.
+#if we get to our timeout value then ansible is going to kill the job .
+
+###
+
+#now, if we change poll to 0, what we're going to do is 
+# this is a fire and forget meaning ansible is going to run our task specified up here and it doesn't have to be command module, of course
+#it can be any module 
+#poll: 0 it's not going to bother checking back . it's just going to run the task and then it's going to let that task run on its own .
+# it was actually really really quickly returned here.

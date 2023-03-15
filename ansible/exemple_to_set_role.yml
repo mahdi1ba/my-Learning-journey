@@ -1,0 +1,16 @@
+---
+- hosts: localhost
+  become: yes
+  #roles:
+  #  - /home/ansible/web
+  tasks:
+    - name: I ran
+      debug:
+        msg: "I ran!"
+    
+    - name: use role
+      include_role:
+        name: /home/ansible/web
+
+#block roles
+# or include_role

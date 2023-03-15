@@ -1,0 +1,12 @@
+---
+- name: Ansible Fact Demo
+  hosts: nodes
+  gather_facts: false
+  tasks:
+    - name: collect facts
+      setup:
+    - name: Show details
+      debug:
+        msg: "{{ ansible_distribution }} {{ ansible_hostname }} {{ ansible_default_ipv4['address'] }}"
+
+# despite gather facts : desactivated we can grap info / facts from target host because we had the task collect facts before run show details 

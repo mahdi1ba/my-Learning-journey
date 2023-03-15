@@ -1,0 +1,27 @@
+- 
+    name: Set Firewall Configurations
+    hosts: web
+    tasks:
+      - firewalld:
+          service: https
+          permanent: true
+          state: enabled
+      
+      - firewalld:
+          port: '{{ http_port }}'/tcp
+          permanent: true
+          state: disabled
+      
+      - firewalld:
+          port: '{{ snmp_port }}'/udp
+          permanent: true
+          state: disabled
+      
+      - firewalld:
+          source: '{{ inter_ip_range }}'/24
+          Zone: internal 
+          state: enabled
+
+#Sample Inventroy File 
+#web http_port=8081 snmp_port=161-162 inter_ip_range=192.0.2.0
+

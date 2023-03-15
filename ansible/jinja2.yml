@@ -1,0 +1,23 @@
+#motd.j2 ::: Jinja 2 template 
+
+#---------------------------------------------
+#welcome to {{ ansible_facts.hostname }}
+#(IP address: {{ ansible_facts.default_ipv4.address }})
+#
+#If you have any issues, please contact {{ system_admin_email }}.
+#This message is configured by Ansible.
+#Phone: {{ system_admin_phone | default('23813304') }}
+#-----------------------------------------
+
+- name: using Jinja2
+  hosts: nodes
+  become: yes
+  vars:
+    system_admin_email: admin@lab.tn
+  tasks:
+    - name: Deploy motd
+      template:
+        dest: /etc/motd
+        src: motd.j2
+
+#ansible-playbook jinja2.yml

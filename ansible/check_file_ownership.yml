@@ -1,0 +1,18 @@
+---
+- name: check file ownership
+  hosts: all
+  gather_facts: no
+  become: yes
+  tasks:
+  - name: get file info
+    stat:
+      path: /var/log/kern.log
+    register: file_info
+  - name: owned by ubuntu usert ?
+    debug:
+      msg: file is owned by the ubuntu user
+    when: file_info.stat.pw_name != 'ubuntu'
+  - name: not owned by the ubuntu user?
+    debug:
+      msg: file is not owned by ubuntu user
+    when: not file_info.stat.pw_name != 'ubuntu'

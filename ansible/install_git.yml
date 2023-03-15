@@ -1,0 +1,10 @@
+--- #install git on target host
+- hosts: workstation
+  become: yes
+  tasks:
+  - name: install git
+    yum:
+      name: git
+      state: latest
+
+#ansible-playbook -i /home/ansible/inventory /home/ansible/git-setup.yml

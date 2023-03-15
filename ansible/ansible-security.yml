@@ -1,0 +1,29 @@
+#ensuring all the nodes have SELinux installed 
+---
+- hosts: all
+  user: ansible
+  become: yes
+  gather_facts: no
+  tasks:
+
+  - name: Enable SELinux
+    selinux:
+      policy: targeted
+      state: enforcing
+
+#verify the Installation of firewalld
+
+---
+- hosts: all
+  user: ansible
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: install firewalld
+      action: yum name=firewalld state=installed
+    - name: Enable firewalld on system reboot
+      service: name=firewalld enabled=yes
+    - name: Start service firewalld, if not started
+      service:
+        name: firewalld
+        state: started

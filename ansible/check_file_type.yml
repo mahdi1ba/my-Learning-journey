@@ -1,0 +1,17 @@
+---
+- name: check file type
+  hosts: all
+  become: yes
+  tasks:
+  - name: get file info
+    stat:
+      path: /var/log/kern.log
+    register: file_info
+  - name: regular file?
+    debug:
+      msg: specified path is a regular file
+    when: file_info.stat.isreg
+  - name: is a directory?
+    debug:
+      msg: specified path is directory
+    when: file_info.stat.isdir

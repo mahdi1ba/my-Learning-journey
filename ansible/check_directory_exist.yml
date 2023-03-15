@@ -1,0 +1,17 @@
+---
+- name: ansible stat module
+  hosts: all
+  become: yes
+  tasks:
+  - name: check log directory
+    stat:
+      path: /var/log/
+    register: dir_info
+  - name: tell if directory exists
+    debug:
+      msg: target directory exists
+    when: dir_info.stat.exists
+  - name: tell if dir is missing
+    debug:
+      msg: directory is missing
+    when: not dir_info.stat.exists

@@ -1,0 +1,2 @@
+server01 ansible_host=198.148.118.68 ansible_user=root
+server02 ansible_host=198.148.118.129 ansible_user=user

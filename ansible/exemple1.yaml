@@ -1,0 +1,41 @@
+-
+  name: Play1
+  hosts: localhost
+  tasks:
+    - name: Execute command 'date'
+      command: date
+    - name: Execute script on server
+      script: test_script.sh
+    - name: Install httpd service
+      yum:
+        name: httpd
+        state: present
+
+    - name: Start web server
+      service:
+        name: httpd
+        state: started
+
+- 
+  name: Play2
+  hosts: localhost
+  tasks:
+    - name: Display resolv.conf contents
+      command: cat /etc/resolv.conf
+
+- 
+  name: Start Services in order
+  hosts: localhost
+  tasks:
+    - name: Start the database service
+      service: name=postgresql state=started
+
+-
+  name: Add DNS server to resolv.conf
+  hosts: localhost
+  tasks:
+    - lineinfile:
+          path: /etc/resolv.conf
+          line: 'nameserver 10.1.250.10' 
+          
+             

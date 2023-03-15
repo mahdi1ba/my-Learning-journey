@@ -1,0 +1,38 @@
+---
+- hosts: all
+  user: ansible
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: install the at command for job scheduling
+      action: yum name=at state=installed
+
+    - name: Enable and Start service at if not started
+      service:
+        name: atd
+        enabled: yes
+        state: started
+---
+- hosts: all
+  user: ansible
+  become: no
+  gather_facts: no
+  tasks:
+    - name: Schedule a command to execute in 20 minutes as the ansible user
+      at:
+        command: df -h > /tmp/diskspace
+        count: 20
+        units: minutes
+
+#Remove the Previously Scheduled Task
+---
+- hosts: all
+  user: ansible
+  become: no
+  gather_facts: no
+  tasks:
+
+  - name: Match a command to an existing job and delete the job
+    at:
+      command: df -h > /tmp/diskspace
+      state: absent

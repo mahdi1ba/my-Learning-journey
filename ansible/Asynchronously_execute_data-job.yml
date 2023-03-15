@@ -1,0 +1,9 @@
+---
+- hosts: yes
+  become: yes
+  tasks:
+    - name: run data job
+      command: /opt/data-job.sh
+      async: 600
+      poll: 0
+      tags:
